@@ -2,7 +2,7 @@ __ALPHA: Significant API changes to come__
 
 This add-on isn't ready to be used in production. It's a RFC proof-of-concept intended to further the conversation of how state is managed in Ember apps.
 
-PRs and constructive comments are highly encouraged.
+PRs and constructive questions and comments via [GitHub issues](https://github.com/AltSchool/ember-cli-redux/issues/new) are highly encouraged. 
 
 # Ember-cli-redux
 
@@ -139,15 +139,13 @@ The reducer can only accept vanilla objects. However, it's common to want to pas
 
 A simple [middleware](http://rackt.org/redux/docs/advanced/Middleware.html) called `redux-thunk` allows you to dispatch functions that resolve to Redux actions. Additionally, it provides `dispatch` and `state` to your function. It works like this:
 
-```
-doSomething() {
-  return doSomethingAsync().then((results) => {
-    return (dispatch) => {
-      dispatch({
-        type: RECEIVE_RESULTS,
-        results
-      })
-    }
+```javascript
+doSomething = function() {
+  return doSomethingAsync().then(results => dispatch => {
+    dispatch({
+      type: RECEIVE_RESULTS,
+      results
+    })
   })
 }
 
@@ -248,6 +246,10 @@ Debugging an Ember app with Redux becomes much easier:
 
 # Anticipated Questions
 
+### Is this ready to be used in production?
+
+No. Expect some breaking API changes as we work through more use cases.
+
 ### Is this enormous?
 
 Redux is a tiny (About 2kB) and provides a pattern that Ember apps could really benefit from. The API is similarly tiny.  If you've struggled to learn the depth of EmberData you'll find this to be a breeze in comparison.
@@ -288,6 +290,10 @@ You might need this if:
 * You have long computed-property chains that reach up the routing hierarchy.
 * Error reports from your production environments are hard to reproduce. Especially when race conditions are involved.
 * You find it difficult to specify what promises should and shouldn't pause your route transitions.
+
+### What might this lead to?
+
+Centralized state is key for features like [time traveling debugging](https://github.com/gaearon/redux-devtools) and [hot module replacement](https://webpack.github.io/docs/hot-module-replacement.html), two technologies that can dramatically improve the development experience. If we can build a reasonable pattern for managing and serializing state in Ember, we'll have a foundation for some pretty useful tech.
 
 ## Running Tests
 
