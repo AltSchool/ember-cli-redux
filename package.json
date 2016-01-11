@@ -15,7 +15,7 @@
     "url": "git+https://github.com/AltSchool/ember-cli-redux.git"
   },
   "engines": {
-    "node": ">= 0.10.0"
+    "node": ">= 0.12.7"
   },
   "author": "Matthew Constantine <matthew@altschool.com>",
   "license": "MIT",
