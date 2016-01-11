@@ -1,8 +1,15 @@
+const emberModelType = function(model) {
+  var constructor = model.constructor.toString();
+  var match = constructor.match(/model:(.+):/);
+  if (!match || !match[1]) {throw `No model constructor found for ${constructor}`;}
+  return match[1];
+};
+
 const deserializeFromEmber = function(o, depth = 10) {
   if(o && o.toJSON) {
-    var constructor = o.get && o.get('constructor').toString();
-    return constructor ? 
-      {'_constructor': constructor, json: o.toJSON({includeId:true})} : 
+    const type = emberModelType(o);
+    return o.store && o.store.normalize ? 
+      o.store.normalize(type, o.toJSON({includeId:true})) : 
       o.toJSON();
   } else if (Array.isArray(o)) {
     return o.reduce((acc, item) => {
