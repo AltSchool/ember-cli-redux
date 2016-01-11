@@ -101,7 +101,7 @@ The only way to change that state is by dispatching a Redux Action to a Reducer.
 
 Redux Actions describe the fact that something happened. They are simple atomic objects that contain a `type` and an optional payload. Here are some examples:
 
-```
+```javascript
 {
   type: FETCH_TODOS
 }
@@ -118,7 +118,7 @@ Redux Actions describe the fact that something happened. They are simple atomic 
 
 You'll notice that they're just objects, not functions. With ember-cli-redux, you move the state-changing logic from your ember action to a Reducer. Then replace your ember action with a dispatch call:
 
-```
+```javascript
 actions: {
   editTodo(todo) {
     this.dispatch({
