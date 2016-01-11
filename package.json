@@ -1,6 +1,6 @@
 {
   "name": "ember-cli-redux",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Ambitious state management for Ember",
   "directories": {
     "test": "tests"
