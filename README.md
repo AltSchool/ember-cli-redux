@@ -4,6 +4,8 @@ This add-on isn't ready to be used in production. It's a RFC proof-of-concept in
 
 PRs and constructive questions and comments via [GitHub issues](https://github.com/AltSchool/ember-cli-redux/issues/new) are highly encouraged. 
 
+[Example TodoMVC App](http://matthewconstantine.github.io/ember-cli-redux-todos/) ([code](https://github.com/matthewconstantine/ember-cli-redux-todos))
+
 # Ember-cli-redux
 
 State management in ambitious Ember apps is difficult. This add-on provides a way to manage the state of your application in a predictable, testable way.
