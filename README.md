@@ -34,7 +34,7 @@ const initialState = Ember.Object.create({
   count: 0
 })
 
-export default function(state = initialState, action = null) {
+export default function(emberStore = null, state = initialState, action = null) {
   switch (action.type) {
     case 'INCREMENT_COUNT':
       state.setProperties({count: state.count + 1});
