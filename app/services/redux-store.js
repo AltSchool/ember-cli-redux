@@ -13,16 +13,17 @@ const createStoreWithMiddleware = applyMiddleware(
 )(createStore);
 
 export default Ember.Service.extend({
-  
+  state: Ember.computed.readOnly('_state'),
+
   init() {
     this._store = createStoreWithMiddleware(reducer);
 
     this._store.subscribe(() => {
-      this.set('state', this._store.getState());
-      this.notifyPropertyChange('state');
+      this.set('_state', this._store.getState());
+      this.notifyPropertyChange('_state');
     });
 
-    this.set('state', this._store.getState());
+    this.set('_state', this._store.getState());
   },
 
   stateString: Ember.computed('state', function() {
