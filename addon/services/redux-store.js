@@ -1,13 +1,13 @@
 import Ember from 'ember';
 import redux from 'npm:redux';
-// import thunk from 'npm:redux-thunk';
+import thunk from 'npm:redux-thunk';
 import deserializeFromEmber from '../lib/deserialize-from-ember';
 import emberLoggerMiddleware from '../lib/ember-logger-middleware';
 
 const { createStore, applyMiddleware } = redux;
 
 const createStoreWithMiddleware = applyMiddleware(
-  // thunk,
+  thunk,
   emberLoggerMiddleware
 )(createStore);
 
