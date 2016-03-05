@@ -54,7 +54,7 @@ The route's `incrementCount` action dispatches a Redux Action to the reducer via
 ```javascript
 // app/routes/application.js
 import Ember from 'ember';
-import EmberRedux from '../mixins/ember-redux';
+import EmberRedux from 'ember-cli-redux/mixins/ember-redux';
 
 export default Ember.Route.extend(EmberRedux, {
   reduxStore: Ember.inject.service(),
@@ -297,9 +297,43 @@ You might need this if:
 
 Centralized state is key for features like [time traveling debugging](https://github.com/gaearon/redux-devtools) and [hot module replacement](https://webpack.github.io/docs/hot-module-replacement.html), two technologies that can dramatically improve the development experience. If we can build a reasonable pattern for managing and serializing state in Ember, we'll have a foundation for some pretty useful tech.
 
+## Changelog
+
+#### Next Version
+* [Breaking Change] We no longer provide the EmberStore to your reducers. This was originally intended as a way to support actions from code unwaware of Ember Data. However, it proved to complicate testing quite a bit. If you need access to the store, pass it in using an action. When updating your reducer, simply remove the first `emberStore` parameter.
+
+```javascript
+// Before
+export default function todo(emberStore, state = initialState, action = null) {
+  switch (action.type) {
+  /* ... */
+  }
+}
+
+// After
+export default function todo(state = initialState, action = null) {
+  switch (action.type) {
+  /* ... */
+  }
+}
+```
+
+* [Improvement] ember-cli-redux modules are now namespaced.
+```
+// Before
+import EmberRedux from '../mixins/ember-redux';
+
+// After
+import EmberRedux from 'ember-cli-redux/mixins/ember-redux'
+```
+
+* [Improvement] The ReduxStore Mixin's `state` property is now a Read Only computed property. This helps ensure that the only changing the state tree is the reducer. 
+
 ## Running Tests
 
 * `ember test`
 * `ember test --server`
 
 For more information on using ember-cli, visit [http://www.ember-cli.com/](http://www.ember-cli.com/).
+
+
