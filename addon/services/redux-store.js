@@ -6,17 +6,19 @@ import emberLoggerMiddleware from '../lib/ember-logger-middleware';
 
 const { createStore, applyMiddleware } = redux;
 
-const createStoreWithMiddleware = applyMiddleware(
-  thunk,
-  emberLoggerMiddleware
-)(createStore);
+const createStoreWithMiddleware = (middleware) => 
+  applyMiddleware.apply(null, middleware)(createStore);
+
+const emberLogger = emberLoggerMiddleware();
 
 export default Ember.Service.extend({
   reducer: null, // Provided by the host app's app/reducers/index.js via app/services/redux-store
   state: Ember.computed.readOnly('_state'),
 
+  middleware: [thunk, emberLogger],
+
   init() {
-    this._store = createStoreWithMiddleware(this.get('reducer'));
+    this._store = createStoreWithMiddleware(this.get('middleware'))(this.get('reducer'));
 
     this._store.subscribe(() => {
       this.set('_state', this._store.getState());
