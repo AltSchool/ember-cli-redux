@@ -26,3 +26,11 @@ test('it produces a deserialized state string', function(assert) {
   var service = this.subject();
   assert.equal(service.get('stateString'), "{\"count\":0}");
 });
+
+test('it does not allow the state to be mutated directly', function(assert) {
+  var service = this.subject();
+  assert.throws(function() {
+    service.set('state', {count: 1});    
+  });
+  assert.equal(service.get('state.count'), 0);
+});

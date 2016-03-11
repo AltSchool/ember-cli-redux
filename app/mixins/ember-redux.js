@@ -1,24 +1,5 @@
-import Ember from 'ember';
+import EmberReduxMixin from 'ember-cli-redux/mixins/ember-redux';
+import redux from 'npm:redux';
+import thunk from 'npm:redux-thunk';
 
-export default Ember.Mixin.create({
-  reduxStore: Ember.inject.service(),
-
-  dispatch(action) {
-    return this.get('reduxStore').dispatch(action);
-  },
-
-  dispatchAction(actionName, ...args) {
-    return this.dispatch(this.action(actionName).apply(this, args));
-  },
-
-  getState(path) {
-    return path ? 
-      this.get(`reduxStore.state.${path}`) : 
-      this.get('reduxStore.state');
-  },
-
-  action(actionName) {
-    if (!this.reduxActions[actionName]) {throw new Error(`No redux action found for ${actionName}`);}
-    return this.reduxActions[actionName].bind(this);
-  },
-});
+export default EmberReduxMixin;

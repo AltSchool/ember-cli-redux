@@ -1,8 +1,10 @@
-__ALPHA: Significant API changes to come__
+[![Build Status](https://travis-ci.org/AltSchool/ember-cli-redux.svg?branch=master)](https://travis-ci.org/AltSchool/ember-cli-redux)
+
+__ALPHA: API changes likely to come__
 
 This add-on isn't ready to be used in production. It's a RFC proof-of-concept intended to further the conversation of how state is managed in Ember apps.
 
-PRs and constructive questions and comments via [GitHub issues](https://github.com/AltSchool/ember-cli-redux/issues/new) are highly encouraged. 
+PRs and constructive questions and comments via [GitHub issues](https://github.com/AltSchool/ember-cli-redux/issues/new) are highly encouraged.
 
 [Example TodoMVC App](http://matthewconstantine.github.io/ember-cli-redux-todos/) ([code](https://github.com/matthewconstantine/ember-cli-redux-todos))
 
@@ -12,7 +14,7 @@ State management in ambitious Ember apps is difficult. This add-on provides a wa
 
 [Redux](http://redux.js.org/) is an evolution of [Facebook's Flux pattern](https://facebook.github.io/flux/docs/overview.html#content). It was developed for React applications but it plays well with other view libraries. It works surprisingly well with Ember. 
 
-This project provides a Redux Store service and a Mixin for some syntactic sugar. The Redux store includes the popular `redux-thunk` middleware and a simple Ember-aware logger.
+This project provides a Redux Store service and a Mixin for some syntactic sugar. By default, we include the popular `redux-thunk` middleware and a simple Ember-aware logger.
 
 ## Installation
 
@@ -20,13 +22,11 @@ This project provides a Redux Store service and a Mixin for some syntactic sugar
 
 ## Usage
 
-Note: This API will likely change in coming releases.
-
 In any ember object, use the reduxStore service to dispatch actions and read state. 
 
 ### Data Flow Example
 
-First, the reducer does the work of modifying the state.
+First, the reducer defines an `initialState`, the starting state of your app. Then it does the work of modifying the state and returns the new state when actions are dispatched. The rest of your app updates automatically from this central state using computed properties.
 
 ```javascript
 // app/reducers/index.js
@@ -48,13 +48,13 @@ export default function(emberStore = null, state = initialState, action = null) 
 };
 ```
 
-The route's `incrementCount` action dispatches a Redux Action to the reducer via the reduxStore.
+Next, The route's `incrementCount` action dispatches a Redux Action to the reducer via the reduxStore.
 
 
 ```javascript
 // app/routes/application.js
 import Ember from 'ember';
-import EmberRedux from '../mixins/ember-redux';
+import EmberRedux from 'ember-cli-redux/mixins/ember-redux';
 
 export default Ember.Route.extend(EmberRedux, {
   reduxStore: Ember.inject.service(),
@@ -67,7 +67,7 @@ export default Ember.Route.extend(EmberRedux, {
 });
 ```
 
-The controller provides a `state` computed property to the template.
+Then, the controller provides a `state` computed property to the template.
 
 ```javascript
 // app/controllers/application.js
@@ -79,13 +79,14 @@ export default Ember.Controller.extend({
 });
 ```
 
-The template renders the state and fires an Ember action on click.
+Finally, the template renders the state and fires an Ember action on click. The Ember action dispatches an `INCREMENT_COUNT` action, the reducer receives the action, updates the state and Ember rerenders the template.
 
-```hbs
+```handlebars
 {{!-- app/templates/application.hbs --}}
 <h1>Current count: {{state.count}}</h1>
 <button {{action "incrementCount"}}>Increment</button>
 ```
+ 
 
 ## Core concepts
 
@@ -118,7 +119,9 @@ Redux Actions describe the fact that something happened. They are simple atomic 
 }
 ```
 
-You'll notice that they're just objects, not functions. With ember-cli-redux, you move the state-changing logic from your ember action to a Reducer. Then replace your ember action with a dispatch call:
+You'll notice that actions are just plain javascript objects. They contain just enough information for the Reducer to change the state.
+
+You often will dispatch Redux actions from your Ember actions:
 
 ```javascript
 actions: {
@@ -131,34 +134,23 @@ actions: {
 }
 ``` 
 
-Actions describe what happened. It's up to `store.dispatch` to pass them onto the Reducers.
+Asynchronous actions are similarly easy to deal with. Here, we dispatch an action from a route's model hook:
+
+```javascript
+model() => {
+  this.dispatch({type: 'REQUEST_TODOS'});
+  return this.store.findAll('todo').then((todos) => {
+    this.dispatch({
+      type: 'RECEIVE_TODOS',
+      todos
+    });
+}
+```
+
+Actions describe what happened and `dispatch` to passes them onto Reducers.
 
 [More on Actions.](http://redux.js.org/docs/basics/Actions.html)
 
-### Action Creators
-
-The reducer can only accept vanilla objects. However, it's common to want to pass functions that resolve to vanilla objects. That's where Action Creators come into play. 
-
-A simple [middleware](http://rackt.org/redux/docs/advanced/Middleware.html) called `redux-thunk` allows you to dispatch functions that resolve to Redux actions. Additionally, it provides `dispatch` and `state` to your function. It works like this:
-
-```javascript
-doSomething = function() {
-  return doSomethingAsync().then(results => dispatch => {
-    dispatch({
-      type: RECEIVE_RESULTS,
-      results
-    })
-  })
-}
-
-...
-
-this.dispatch(doSomething)
-```
-
-A note about Middleware. Redux middleware are simply functions that accept the actions before the Reducer does and passes the action on. They're perfect for logging, reporting crashes, scheduling dispatches, handling promises or in this case, evaluating thunks. 
-
-[More About Middleware](http://rackt.org/redux/docs/advanced/Middleware.html)
 
 ### Reducer
 
@@ -166,7 +158,7 @@ The Reducer's job is to specify how an application's state changes in response t
 
 > For now, just remember that the reducer must be pure. Given the same arguments, it should calculate the next state and return it. No surprises. No side effects. No API calls. No mutations. Just a calculation.
 
-Global state could easily become unmanageable so Redux keeps it read-only (ideally). The only thing that can change the state is a Reducer. A reducer looks something like this:
+Global state could easily become unmanageable so Ember CLI Redux keeps it read-only. The only thing that may change the state is a Reducer. A reducer looks something like this:
 
 ```javascript
   function todo(state = initialState, action = null) {
@@ -211,7 +203,42 @@ It expects a state where the top level keys match the reducer names. Upon dispat
 
 [More on Reducers.](http://redux.js.org/docs/basics/Reducers.html)
 
-That's it for the core concepts. State, Actions, Action Creators and Reducers. 
+### Middleware
+
+By dispatching actions to a Reducer, we have a chance of action on those actions. That's where middleware comes in. It provides a single extensible interface for adding cross-cutting capabilites to your app. It's perfect for logging, crash reporting, managing asynchronous actions. Here's a [long list of middlewares](https://github.com/xgrommx/awesome-redux#react---a-javascript-library-for-building-user-interfaces). By default Ember CLI Redux provides the popular [redux-thunk](https://github.com/gaearon/redux-thunk) middleware and a simple Ember aware logger.
+
+#### Customizing Middleware
+
+To customize or add your own middleware, extend the reduxStore like this:
+
+```javascript
+// app/services/redux-store.js
+import ReduxStore from 'ember-cli-redux/services/redux-store';
+import reducer from '../reducers/index';
+import emberLoggerMiddleware from 'ember-cli-redux/lib/ember-logger-middleware';
+
+const logger = emberLoggerMiddleware({
+  enabled: true
+});
+
+export default ReduxStore.extend({
+  reducer,
+
+  middleware: [logger],
+});
+```
+
+Adding your own middleware is straightforward:
+```javascript
+const customLogger = (/* store */) => next => action => {
+  console.log(`Hey! The action is ${action.type}`, action);
+  return next(action);
+};
+```
+
+[More on Middleware.](http://redux.js.org/docs/advanced/Middleware.html)
+
+That's it for the core concepts. State, Actions, Reducers and Middleware. 
 
 ## The problems Redux alleviates in Ember Apps
 
@@ -303,3 +330,5 @@ Centralized state is key for features like [time traveling debugging](https://gi
 * `ember test --server`
 
 For more information on using ember-cli, visit [http://www.ember-cli.com/](http://www.ember-cli.com/).
+
+
