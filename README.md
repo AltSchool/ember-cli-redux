@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/AltSchool/ember-cli-redux.svg?branch=master)](https://travis-ci.org/AltSchool/ember-cli-redux)
+
 __ALPHA: API changes likely to come__
 
 This add-on isn't ready to be used in production. It's a RFC proof-of-concept intended to further the conversation of how state is managed in Ember apps.
