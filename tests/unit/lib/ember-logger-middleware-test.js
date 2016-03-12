@@ -1,4 +1,3 @@
-// import Ember from 'ember';
 import emberLoggerMiddleware from 'ember-cli-redux/lib/ember-logger-middleware';
 import { module, test } from 'qunit';
 
